@@ -19,7 +19,7 @@ using namespace IODash;
 
 int main() {
 
-	std::cout << sizeof(SocketAddress<AddressFamily::Unspecified>) << "," << sizeof(sockaddr) << "\n";
+	std::cout << sizeof(SocketAddress<AddressFamily::Any>) << "," << sizeof(sockaddr) << "\n";
 	std::cout << sizeof(SocketAddress<AddressFamily::IPv4>) << "," << sizeof(sockaddr_in)  << "\n";
 
 	SocketAddress<AddressFamily::IPv4> s("127.0.0.1:8080");
@@ -60,6 +60,7 @@ int main() {
 
 
 	std::cout << t.to_string() << "\n";
+
 
 	Socket<AddressFamily::IPv4, SocketType::Datagram> socket0;
 	socket0.create();
