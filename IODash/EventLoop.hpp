@@ -89,7 +89,7 @@ namespace IODash {
 
 	protected:
 		std::unordered_map<int, std::tuple<File, EventType, UD>> watched_fds;
-		std::function<void(EventLoop&, const File&, EventType, UD&)> event_handlers[(uint8_t)EventType::All+1];
+		std::function<void(EventLoop&, File&, EventType, UD&)> event_handlers[(uint8_t)EventType::All+1];
 
 		std::function<void(EventLoop&)> handler_post_events;
 		std::function<void(EventLoop&)> handler_idle;

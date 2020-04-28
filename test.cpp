@@ -76,8 +76,8 @@ int main() {
 	EventLoop<EventBackend::Poll> event_loop;
 	event_loop.add(socket1);
 
-	event_loop.on_event(EventType::In, [](EventLoop<EventBackend::Any>& event_loop, const File& so, EventType ev, int& userdata){
-		auto cur_socket = static_cast<const Socket<AddressFamily::IPv6, SocketType::Stream>&>(so);
+	event_loop.on_event(EventType::In, [](EventLoop<EventBackend::Any>& event_loop, File& so, EventType ev, int& userdata){
+		auto cur_socket = static_cast<Socket<AddressFamily::IPv6, SocketType::Stream>&>(so);
 
 		std::cout << "FD " << cur_socket.fd() << " In event\n";
 
