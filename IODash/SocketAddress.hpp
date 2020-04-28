@@ -52,7 +52,7 @@ namespace IODash {
 		}
 
 		AddressFamily family() const noexcept {
-			return sa.s.sa_family;
+			return (AddressFamily)sa.s.sa_family;
 		}
 
 		virtual size_t size() const noexcept {
@@ -65,6 +65,18 @@ namespace IODash {
 
 		const sockaddr *raw() const noexcept {
 			return reinterpret_cast<const sockaddr *>(&sa);
+		}
+
+		SocketAddress<AddressFamily::IPv4>* as_ipv4() {
+			return (SocketAddress<AddressFamily::IPv4>*)this;
+		}
+
+		SocketAddress<AddressFamily::IPv6>* as_ipv6() {
+			return (SocketAddress<AddressFamily::IPv6>*)this;
+		}
+
+		SocketAddress<AddressFamily::Unix>* as_unix() {
+			return (SocketAddress<AddressFamily::Unix>*)this;
 		}
 	};
 

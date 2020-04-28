@@ -53,7 +53,7 @@ namespace IODash {
 
 		SocketAddress<AF> local_address() noexcept {
 			SocketAddress<AF> ret;
-			size_t sz = ret.size();
+			socklen_t sz = ret.size();
 			if (getsockname(fd_, ret.raw(), &sz))
 				throw std::system_error(errno, std::system_category(), "failed to get local address");
 

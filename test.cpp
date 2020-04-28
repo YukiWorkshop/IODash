@@ -14,8 +14,10 @@
 
 #include <iostream>
 #include <unordered_set>
+#include <cassert>
 
 using namespace IODash;
+
 
 int main() {
 
@@ -31,7 +33,7 @@ int main() {
 	s.from_string(":");
 	s.from_string("1.:");
 
-
+	assert(s.as_ipv6()->port() == s.port());
 
 	std::cout << s.to_string() << "\n";
 
@@ -61,17 +63,23 @@ int main() {
 
 	std::cout << t.to_string() << "\n";
 
+	auto sp = socket_pair<SocketType::Datagram>();
+	sp.first.write("123", 4);
+	char buf0[4];
+	sp.second.read(buf0, 4);
+
+	std::cout << "socketpair test: " << buf0 << "\n";
 
 	Socket<AddressFamily::IPv4, SocketType::Datagram> socket0;
 	socket0.create();
-
 	socket0.sendto({"127.0.0.1:9999"}, "123", 3);
-
 
 	Socket<AddressFamily::IPv6, SocketType::Stream> socket1;
 
 	socket1.create();
 	socket1.listen({"[::]:8888"});
+
+	std::cout << "listening on: " << to_string(socket_cast<AddressFamily::Any, SocketType::Datagram>(socket1).local_address()) << "\n";
 
 	EventLoop<EventBackend::Poll> event_loop;
 	event_loop.add(socket1);
