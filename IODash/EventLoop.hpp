@@ -131,9 +131,17 @@ namespace IODash {
 			watched_fds.insert({__target.fd(), {__target, __events, __user_data}});
 		}
 
-		void modify(const File& __target, EventType __events = EventType::All, const UD& __user_data = {}) {
+		void modify(const File& __target, EventType __events, const UD& __user_data) {
 			__lower_mod(__target.fd(), __events);
-			watched_fds.insert({__target.fd(), {__target, __events, __user_data}});
+			auto &it = watched_fds[__target.fd()];
+			std::get<1>(it) = __events;
+			std::get<2>(it) = __user_data;
+		}
+
+		void modify(const File& __target, EventType __events) {
+			__lower_mod(__target.fd(), __events);
+			auto &it = watched_fds[__target.fd()];
+			std::get<1>(it) = __events;
 		}
 
 		void del(const File& __target) {
@@ -220,7 +228,6 @@ namespace IODash {
 
 				if (epoll_ctl(fd_poll, EPOLL_CTL_ADD, __fd, &ev))
 					throw std::system_error(errno, std::system_category(), "EPOLL_CTL_ADD");
-
 			}
 		}
 
@@ -232,7 +239,6 @@ namespace IODash {
 
 				if (epoll_ctl(fd_poll, EPOLL_CTL_MOD, __fd, &ev))
 					throw std::system_error(errno, std::system_category(), "EPOLL_CTL_MOD");
-
 			}
 		}
 
@@ -240,7 +246,6 @@ namespace IODash {
 			if (fd_poll > 0) {
 				if (epoll_ctl(fd_poll, EPOLL_CTL_DEL, __fd, nullptr))
 					throw std::system_error(errno, std::system_category(), "EPOLL_CTL_DEL");
-
 			}
 		}
 

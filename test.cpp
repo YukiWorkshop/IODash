@@ -85,7 +85,7 @@ int main() {
 	event_loop.add(socket1);
 
 	event_loop.on_event(EventType::In, [](EventLoop<EventBackend::Any>& event_loop, File& so, EventType ev, int& userdata){
-		auto cur_socket = static_cast<Socket<AddressFamily::IPv6, SocketType::Stream>&>(so);
+		auto cur_socket = socket_cast<AddressFamily::IPv6, SocketType::Stream>(so);
 
 		std::cout << "FD " << cur_socket.fd() << " In event\n";
 
@@ -97,9 +97,13 @@ int main() {
 		} else {
 			char buf[128];
 			auto rc = cur_socket.recv(buf, 128);
-			if (rc > 0)
-				std::cout << "Read " << rc << " bytes from client " << cur_socket.remote_address().to_string() << "\n";
-			else {
+			if (rc > 0) {
+				std::cout << "Read " << rc << " bytes from client "
+					  << cur_socket.remote_address().to_string() << "\n";
+
+				event_loop.modify(cur_socket, EventType::In);
+				event_loop.modify(cur_socket, EventType::In, 233);
+			} else {
 				event_loop.del(cur_socket);
 				cur_socket.close();
 			}
