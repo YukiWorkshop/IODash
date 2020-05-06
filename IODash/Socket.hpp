@@ -29,6 +29,8 @@ namespace IODash {
 
 	template<AddressFamily AF, SocketType ST>
 	class Socket : public File {
+	private:
+		using File::open;
 	public:
 		Socket() = default;
 
@@ -127,14 +129,3 @@ namespace IODash {
 	};
 }
 
-namespace std {
-	template<>
-	struct hash<IODash::File> {
-		std::size_t operator()(const IODash::File &k) const {
-			using std::size_t;
-			using std::hash;
-
-			return hash<int>()(k.fd());
-		}
-	};
-}

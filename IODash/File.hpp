@@ -36,6 +36,13 @@ namespace IODash {
 			return fd_;
 		}
 
+		void open(const std::string& __path, int __mode = O_RDWR) {
+			fd_ = ::open(__path.c_str(), __mode);
+
+			if (fd_ < 0)
+				throw std::system_error(errno, std::system_category(), "failed to open");
+		}
+
 		void close() noexcept {
 			if (fd_ > 0) {
 				::close(fd_);
@@ -53,5 +60,30 @@ namespace IODash {
 			return ::read(fd_, __buf, __len);
 		}
 
+		ssize_t putc(uint8_t __c) {
+			return write(&__c, 1);
+		}
+
+		int getc() {
+			uint8_t c;
+			int rc = read(&c, 1);
+			if (rc == 1)
+				return c;
+			else
+				return rc;
+		}
+
+	};
+}
+
+namespace std {
+	template<>
+	struct hash<IODash::File> {
+		std::size_t operator()(const IODash::File &k) const {
+			using std::size_t;
+			using std::hash;
+
+			return hash<int>()(k.fd());
+		}
 	};
 }
