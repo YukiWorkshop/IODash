@@ -28,6 +28,24 @@ namespace IODash {
 
 		}
 
+		File(const File& o) {
+			puts("copy-constructed\n");
+			if (fd_ >= 0)
+				fd_ = dup(o.fd_);
+		}
+
+		File(File&& o) {
+			puts("move-constructed\n");
+			fd_ = o.fd_;
+			o.fd_ = -1;
+		}
+
+		File& operator=(const File& o) {
+			puts("copy-assigned\n");
+			if (fd_ >= 0)
+				fd_ = dup(o.fd_);
+		}
+
 		int fd() const noexcept {
 			return fd_;
 		}

@@ -7,6 +7,13 @@ Lightweight C++ I/O library
 -  Uses very little memory (512KB for 10k TCP conns on x86_64)
 -  No more `Boost`ed - doesn't abuse `shared_ptr`s
 
+## Supported IO targets
+-  Regular file (no async so far)
+-  Socket (TCP, UDP, Unix, Pipe, SocketPair...)
+-  Serial (/dev/tty*)
+-  Timer (timerfd on Linux)
+-  ...more to come
+
 ## ToDos
 -  Documentation!!!
 -  Serial port class
