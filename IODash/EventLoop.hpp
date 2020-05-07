@@ -112,8 +112,9 @@ namespace IODash {
 			for (auto i : {EventType::In, EventType::Out, EventType::Error, EventType::Hangup}) {
 				if (i & __ev) {
 					if (i & __ev && event_handlers[i]) {
-						auto &t = watched_fds[__fd];
-						event_handlers[i](*this, std::get<0>(t), __ev, std::get<2>(t));
+						auto it = watched_fds.find(__fd);
+						if (it != watched_fds.end())
+							event_handlers[i](*this, std::get<0>(it->second), __ev, std::get<2>(it->second));
 					}
 				}
 			}
@@ -168,8 +169,8 @@ namespace IODash {
 
 	};
 
-	template<>
-	class EventLoop<EventBackend::EPoll> : public EventLoop<EventBackend::Any> {
+	template<typename T>
+	class EventLoop<EventBackend::EPoll, T> : public EventLoop<EventBackend::Any, T> {
 	protected:
 		int fd_poll = -1;
 
@@ -210,7 +211,7 @@ namespace IODash {
 		}
 
 		void __add_pre() {
-			for (auto &it : watched_fds) {
+			for (auto &it : EventLoop<EventBackend::Any, T>::watched_fds) {
 				epoll_event ev;
 				ev.data.fd = it.first;
 				ev.events = __translate_events_from(std::get<1>(it.second));
@@ -251,24 +252,24 @@ namespace IODash {
 
 	public:
 		virtual void run() override {
-			run_ = true;
+			EventLoop<EventBackend::Any, T>::run_ = true;
 			fd_poll = epoll_create(42);
 			__add_pre();
 
 			epoll_event evs[128];
-			while (run_) {
+			while (EventLoop<EventBackend::Any, T>::run_) {
 				int rc = epoll_wait(fd_poll, evs, 128, 5000);
 
 				if (rc > 0) {
 					for (uint32_t i=0; i<rc; i++) {
 						auto &cur_ev = evs[i];
-						__call_event_handler(cur_ev.data.fd, __translate_events_to(cur_ev.events));
+						EventLoop<EventBackend::Any, T>::__call_event_handler(cur_ev.data.fd, __translate_events_to(cur_ev.events));
 					}
-					if (handler_post_events)
-						handler_post_events(*this);
+					if (EventLoop<EventBackend::Any, T>::handler_post_events)
+						EventLoop<EventBackend::Any, T>::handler_post_events(*this);
 				} else if (rc == 0) {
-					if (handler_idle)
-						handler_idle(*this);
+					if (EventLoop<EventBackend::Any, T>::handler_idle)
+						EventLoop<EventBackend::Any, T>::handler_idle(*this);
 				} else if (rc < 0) {
 					if (errno != EINTR)
 						throw std::system_error(errno, std::system_category(), "epoll_wait");
@@ -278,8 +279,8 @@ namespace IODash {
 		}
 	};
 
-	template<>
-	class EventLoop<EventBackend::Poll> : public EventLoop<EventBackend::Any> {
+	template<typename T>
+	class EventLoop<EventBackend::Poll, T> : public EventLoop<EventBackend::Any, T> {
 	protected:
 
 		EventType __translate_events_to(int __poll_events) {
@@ -321,13 +322,13 @@ namespace IODash {
 
 	public:
 		virtual void run() override {
-			run_ = true;
+			EventLoop<EventBackend::Any, T>::run_ = true;
 
-			while (run_) {
+			while (EventLoop<EventBackend::Any, T>::run_) {
 				std::vector<pollfd> pfds;
-				pfds.reserve(watched_fds.size());
+				pfds.reserve(EventLoop<EventBackend::Any, T>::watched_fds.size());
 
-				for (auto &it : watched_fds) {
+				for (auto &it : EventLoop<EventBackend::Any, T>::watched_fds) {
 					auto &r = pfds.emplace_back();
 					r.fd = it.first;
 					r.events = __translate_events_from(std::get<1>(it.second));
@@ -338,14 +339,14 @@ namespace IODash {
 				if (rc > 0) {
 					for (auto &it : pfds) {
 						if (it.revents) {
-							__call_event_handler(it.fd, __translate_events_to(it.revents));
+							EventLoop<EventBackend::Any, T>::__call_event_handler(it.fd, __translate_events_to(it.revents));
 						}
 					}
-					if (handler_post_events)
-						handler_post_events(*this);
+					if (EventLoop<EventBackend::Any, T>::handler_post_events)
+						EventLoop<EventBackend::Any, T>::handler_post_events(*this);
 				} else if (rc == 0) {
-					if (handler_idle)
-						handler_idle(*this);
+					if (EventLoop<EventBackend::Any, T>::handler_idle)
+						EventLoop<EventBackend::Any, T>::handler_idle(*this);
 				} else if (rc < 0) {
 					if (errno != EINTR && errno != EAGAIN)
 						throw std::system_error(errno, std::system_category(), "poll");

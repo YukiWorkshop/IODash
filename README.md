@@ -3,15 +3,16 @@ Lightweight C++ I/O library
 
 ## Features
 -  Fast & lightweight
+-  RAII
 -  Header only
--  Uses very little memory (512KB for 10k TCP conns on x86_64)
--  No more `Boost`ed - doesn't abuse `shared_ptr`s
+-  Uses very little memory (1MB for 10k TCP conns on x86_64)
+-  No more `Boost`ed
 
 ## Supported IO targets
 -  Regular file (no async so far)
 -  Socket (TCP, UDP, Unix, Pipe, SocketPair...)
 -  Serial (/dev/tty*)
--  Timer (timerfd on Linux)
+-  Timer (timerfd on Linux) (WIP)
 -  ...more to come
 
 ## ToDos
@@ -50,41 +51,7 @@ socket0.create();
 socket0.sendto({"127.0.0.1:9999"}, "abcde", 5);
 ```
 
-```cpp
-Socket<AddressFamily::IPv6, SocketType::Stream> socket1; // IPv6 TCP
-
-socket1.create();
-socket1.listen({"[::]:8888"});
-
-EventLoop<EventBackend::EPoll> event_loop;
-event_loop.add(socket1);
-
-event_loop.on_event(EventType::In, [](EventLoop<EventBackend::Any>& event_loop, const File& so, EventType ev, int& userdata){
-    auto cur_socket = static_cast<const Socket<AddressFamily::IPv6, SocketType::Stream>&>(so);
-
-    std::cout << "FD " << cur_socket.fd() << " In event\n";
-
-    if (cur_socket.listening()) {
-        Socket<AddressFamily::IPv6, SocketType::Stream> client_socket;
-        cur_socket.accept(client_socket);
-        std::cout << "New client: " << client_socket.remote_address().to_string() << "\n";
-        event_loop.add(client_socket, EventType::In);
-    } else {
-        char buf[128];
-        auto rc = cur_socket.recv(buf, 128);
-        if (rc > 0)
-            std::cout << "Read " << rc << " bytes from client " << cur_socket.remote_address().to_string() << "\n";
-        else {
-            event_loop.del(cur_socket);
-            cur_socket.close();
-        }
-    }
-
-
-});
-
-event_loop.run();
-```
+For more examples, see `test.cpp` and `http_test.cpp`.
 
 ## Documentation
 TBD

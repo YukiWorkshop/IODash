@@ -12,6 +12,8 @@
 
 #pragma once
 
+#include <memory>
+
 #include <unistd.h>
 #include <fcntl.h>
 
@@ -19,31 +21,42 @@ namespace IODash {
 	class File {
 	protected:
 		int fd_ = -1;
-		bool connected_ = false, listening_ = false;
+		std::shared_ptr<int> refcounter;
 
 	public:
 		File() = default;
 
-		File(int __fd) : fd_(__fd) {
+		File(int __fd) : fd_(__fd), refcounter((int *)nullptr) {
 
+		}
+
+		virtual ~File() {
+			close();
 		}
 
 		File(const File& o) {
-			puts("copy-constructed\n");
-			if (fd_ >= 0)
-				fd_ = dup(o.fd_);
+			fd_ = o.fd_;
+			refcounter = o.refcounter;
+//			printf("copy-constructed, refcount=%ld\n", refcounter.use_count());
 		}
 
 		File(File&& o) {
-			puts("move-constructed\n");
+//			puts("move-constructed\n");
+			refcounter = std::move(o.refcounter);
 			fd_ = o.fd_;
 			o.fd_ = -1;
 		}
 
 		File& operator=(const File& o) {
-			puts("copy-assigned\n");
-			if (fd_ >= 0)
-				fd_ = dup(o.fd_);
+			fd_ = o.fd_;
+			refcounter = o.refcounter;
+//			printf("copy-assigned, refcount=%ld\n", refcounter.use_count());
+
+			return *this;
+		}
+
+		explicit operator bool() {
+			return fd_ >= 0;
 		}
 
 		int fd() const noexcept {
@@ -55,18 +68,21 @@ namespace IODash {
 		}
 
 		void open(const std::string& __path, int __mode = O_RDWR) {
+			close();
+
 			fd_ = ::open(__path.c_str(), __mode);
 
 			if (fd_ < 0)
 				throw std::system_error(errno, std::system_category(), "failed to open");
+
+			refcounter.reset((int *)nullptr);
 		}
 
 		void close() noexcept {
-			if (fd_ > 0) {
+//			printf("close, refcount=%ld\n", refcounter.use_count());
+			if (refcounter.use_count() == 1) {
 				::close(fd_);
 				fd_ = -1;
-				listening_ = false;
-				connected_ = false;
 			}
 		}
 

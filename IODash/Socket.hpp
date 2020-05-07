@@ -39,19 +39,7 @@ namespace IODash {
 
 		}
 
-		virtual ~Socket() {
-//			close();
-		}
-
 		using File::fd;
-
-		bool listening() const noexcept {
-			return listening_;
-		}
-
-		bool connected() const noexcept {
-			return connected_;
-		}
 
 		SocketAddress<AF> local_address() noexcept {
 			SocketAddress<AF> ret;
@@ -78,36 +66,32 @@ namespace IODash {
 
 			if (fd_ < 0)
 				throw std::system_error(errno, std::system_category(), "failed to create socket");
+
+			refcounter.reset((int *)nullptr);
 		}
 
 		void listen(const SocketAddress<AF>& __addr, int __backlog = 256) {
+			int enable = 1;
+			if (::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)))
+				throw std::system_error(errno, std::system_category(), "failed to setsockopt");
+
 			if (::bind(fd_, __addr.raw(), __addr.size()))
 				throw std::system_error(errno, std::system_category(), "failed to bind socket");
 
 			if (::listen(fd_, __backlog))
 				throw std::system_error(errno, std::system_category(), "failed to listen on socket");
-
-			listening_ = true;
 		}
 
 		bool connect(const SocketAddress<AF>& __addr) {
 			bool rc = ::connect(fd_, __addr.raw(), __addr.size()) == 0;
-			if (rc)
-				connected_ = true;
 
 			return rc;
 		}
 
-		bool accept(Socket<AF, ST>& __new_socket) {
+		Socket<AF, ST> accept() {
 			int newfd = ::accept(fd_, nullptr, nullptr);
 
-			if (newfd > 0) {
-				__new_socket.fd_ = newfd;
-				__new_socket.connected_ = true;
-				return true;
-			} else {
-				return false;
-			}
+			return {newfd};
 		}
 
 		ssize_t send(const void *__buf, size_t __len, int __flags = 0) {
