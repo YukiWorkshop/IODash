@@ -10,7 +10,7 @@
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 */
 
-#include "IODash.hpp"
+#include <IODash.hpp>
 
 #include <iostream>
 #include <unordered_set>
@@ -52,21 +52,21 @@ int main() {
 			if (userdata.is_listening_socket) {
 				auto client_socket = cur_socket.accept();
 				if (client_socket) {
-					auto rmt_addr = client_socket.remote_address();
-					std::cout << rmt_addr.to_string();
-					printf("New %s client: %s\n",
-					       rmt_addr.family() == AddressFamily::IPv4 ? "IPv4" : "IPv6",
-					       rmt_addr.to_string().c_str());
+//					auto rmt_addr = client_socket.remote_address();
+//					std::cout << rmt_addr.to_string();
+//					printf("New %s client: %s\n",
+//					       rmt_addr.family() == AddressFamily::IPv4 ? "IPv4" : "IPv6",
+//					       rmt_addr.to_string().c_str());
 					event_loop.add(client_socket, EventType::In | EventType::Out);
 				}
 			} else {
 				char buf[1024];
 				auto rc = cur_socket.recv(buf, 1024);
 				if (rc > 0) {
-					std::cout << "Read " << rc << " bytes from client "
-						  << cur_socket.remote_address().to_string() << "\n";
-					auto rmt_addr = cur_socket.remote_address();
-					std::cout << rmt_addr.to_string();
+//					std::cout << "Read " << rc << " bytes from client "
+//						  << cur_socket.remote_address().to_string() << "\n";
+//					auto rmt_addr = cur_socket.remote_address();
+//					std::cout << rmt_addr.to_string();
 
 				} else {
 					event_loop.del(cur_socket);

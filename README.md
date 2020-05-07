@@ -15,6 +15,9 @@ Lightweight C++ I/O library
 -  Timer (timerfd on Linux) (WIP)
 -  ...more to come
 
+## Benchmarks
+See [Benchmarks](./Benchmarks).
+
 ## ToDos
 -  Documentation!!!
 -  Serial port class
