@@ -41,7 +41,7 @@ namespace IODash {
 
 		using File::fd;
 
-		SocketAddress<AF> local_address() noexcept {
+		SocketAddress<AF> local_address() {
 			SocketAddress<AF> ret;
 			socklen_t sz = ret.size();
 			if (getsockname(fd_, ret.raw(), &sz))
@@ -50,7 +50,7 @@ namespace IODash {
 			return ret;
 		}
 
-		SocketAddress<AF> remote_address() noexcept {
+		SocketAddress<AF> remote_address() {
 			SocketAddress<AF> ret;
 			socklen_t sz = ret.size();
 			if (getpeername(fd_, ret.raw(), &sz))
@@ -88,9 +88,13 @@ namespace IODash {
 			return rc;
 		}
 
+		void shutdown(int __how = SHUT_RDWR) {
+			if (::shutdown(fd_, __how))
+				throw std::system_error(errno, std::system_category(), "failed to shutdown socket");
+		}
+
 		Socket<AF, ST> accept() {
 			int newfd = ::accept(fd_, nullptr, nullptr);
-
 			return {newfd};
 		}
 

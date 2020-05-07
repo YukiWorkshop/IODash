@@ -47,13 +47,7 @@ namespace IODash {
 			o.fd_ = -1;
 		}
 
-		File& operator=(const File& o) {
-			fd_ = o.fd_;
-			refcounter = o.refcounter;
-//			printf("copy-assigned, refcount=%ld\n", refcounter.use_count());
-
-			return *this;
-		}
+		File& operator=(const File& o) = default;
 
 		explicit operator bool() {
 			return fd_ >= 0;
