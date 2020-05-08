@@ -1,28 +1,38 @@
 # IODash
-Lightweight C++ I/O library
+Lightweight C++ I/O library for POSIX operation systems
 
 ## Features
--  Fast & lightweight
--  RAII
--  Header only
--  Uses very little memory (1MB for 10k TCP conns on x86_64)
--  No more `Boost`ed
+- Fast & lightweight
+- RAII
+- Header only
+- Both sync & async
+- Uses very little memory (1MB for 10k TCP conns on x86_64)
+- No more `Boost`ed
 
 ## Supported IO targets
--  Regular file (no async so far)
--  Socket (TCP, UDP, Unix, Pipe, SocketPair...)
--  Serial (/dev/tty*)
--  Timer (timerfd on Linux) (WIP)
--  ...more to come
+- Regular file (no async so far)
+- Socket (TCP, UDP, Unix, Pipe, SocketPair...)
+- Serial (/dev/tty*)
+- Timer (timerfd on Linux) (WIP)
+- ...more to come
+
+## Supported event backends
+- poll
+- epoll
+- ...more to come
+
+## Requirements
+- C++17
+- POSIX compatible operation system
 
 ## Benchmarks
 See [Benchmarks](./Benchmarks).
 
 ## ToDos
--  Documentation!!!
--  Serial port class
--  `kqueue` support for BSDs
--  `io_uring` support for newer Linux
+- Documentation!!!
+- Serial port class
+- `kqueue` support for BSDs
+- `io_uring` support for newer Linux
 
 ## Usage
 ```cpp
@@ -58,6 +68,9 @@ For more examples, see `test.cpp` and `http_test.cpp`.
 
 ## Documentation
 TBD
+
+## Warning
+The API is not stabilized yet.
 
 ## License
 MIT

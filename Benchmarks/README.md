@@ -42,6 +42,23 @@ Transfer/sec:      5.39MB
 
 ![Memory usage](https://user-images.githubusercontent.com/34613827/81383650-ed1a1500-9142-11ea-9a58-e79c8b1c6b15.png)
 
+
+- [Node.js](./node_HTTP.js)
+
+node version: `v14.2.0` installed by `n`
+```
+$ ./wrk -t 2 -c 10000 -d 10s http://127.0.0.1:8080
+Running 10s test @ http://127.0.0.1:8080
+  2 threads and 10000 connections
+  Thread Stats   Avg      Stdev     Max   +/- Stdev
+    Latency   389.06ms  439.87ms   2.00s    70.86%
+    Req/Sec     5.62k     6.10k   20.80k    80.56%
+  61751 requests in 10.46s, 9.54MB read
+  Socket errors: connect 0, read 0, write 0, timeout 1251
+Requests/sec:   5904.13
+Transfer/sec:      0.91MB
+```
+
 - [libuv](./libuv_HTTP.c)
 ```
 $ ./wrk -t 2 -c 10000 -d 10s http://127.0.0.1:10000
