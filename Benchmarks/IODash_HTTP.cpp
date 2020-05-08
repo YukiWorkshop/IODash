@@ -15,6 +15,7 @@
 #include <iostream>
 #include <unordered_set>
 #include <cassert>
+#include <csignal>
 
 using namespace IODash;
 
@@ -27,6 +28,8 @@ const char http_reply[] = "HTTP/1.0 200 OK\r\n"
 			  "\r\n";
 
 int main() {
+	signal(SIGPIPE, SIG_IGN);
+
 	Socket<AddressFamily::IPv4, SocketType::Stream> socket1;
 
 	socket1.create();

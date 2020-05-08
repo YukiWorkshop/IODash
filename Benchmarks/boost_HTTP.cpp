@@ -68,6 +68,7 @@ private:
 		if (!error)
 		{
 			socket_.close();
+			delete this;
 		}
 		else
 		{
