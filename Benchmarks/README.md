@@ -17,11 +17,12 @@ $ ./wrk -t 2 -c 10000 -d 10s http://127.0.0.1:8082
 Running 10s test @ http://127.0.0.1:8082
   2 threads and 10000 connections
   Thread Stats   Avg      Stdev     Max   +/- Stdev
-    Latency    45.70ms   44.97ms   1.06s    97.99%
-    Req/Sec    22.09k   646.62    23.52k    71.97%
-  425827 requests in 10.11s, 65.79MB read
-Requests/sec:  42118.21
-Transfer/sec:      6.51MB
+    Latency    44.83ms   47.22ms   1.45s    96.32%
+    Req/Sec    22.29k   827.31    24.86k    76.76%
+  434435 requests in 10.15s, 67.12MB read
+  Socket errors: connect 0, read 136, write 0, timeout 0
+Requests/sec:  42806.55
+Transfer/sec:      6.61MB
 ```
 
 ![Memory usage](https://user-images.githubusercontent.com/34613827/81383314-6feea000-9142-11ea-949a-653d14d9afc2.png)

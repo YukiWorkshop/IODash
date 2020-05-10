@@ -109,12 +109,15 @@ namespace IODash {
 		};
 
 		void __call_event_handler(int __fd, EventType __ev) {
-			for (auto i : {EventType::In, EventType::Out, EventType::Error, EventType::Hangup}) {
-				if (i & __ev) {
-					if (i & __ev && event_handlers[i]) {
-						auto it = watched_fds.find(__fd);
-						if (it != watched_fds.end())
-							event_handlers[i](*this, std::get<0>(it->second), __ev, std::get<2>(it->second));
+			auto it = watched_fds.find(__fd);
+
+			if (it != watched_fds.end()) {
+				for (uint8_t i=0; i<=EventType::All; i++) {
+					if ((i & __ev) == __ev) {
+						if (event_handlers[i]) {
+							event_handlers[i](*this, std::get<0>(it->second), __ev,
+									  std::get<2>(it->second));
+						}
 					}
 				}
 			}

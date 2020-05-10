@@ -48,7 +48,7 @@ int main() {
 //	int fd = open("/dev/null", O_RDWR);
 //	dup2(fd, STDOUT_FILENO);
 
-	event_loop.on_event(EventType::In, [](auto& event_loop, File& so, EventType ev, auto& userdata){
+	event_loop.on_event(EventType::In|EventType::Out, [](auto& event_loop, File& so, EventType ev, auto& userdata){
 		auto &cur_socket = socket_cast<AddressFamily::IPv4, SocketType::Stream>(so);
 
 		try {
@@ -63,16 +63,31 @@ int main() {
 					event_loop.add(client_socket, EventType::In | EventType::Out);
 				}
 			} else {
-				char buf[1024];
-				auto rc = cur_socket.recv(buf, 1024);
-				if (rc > 0) {
+				if (ev & EventType::In) {
+					char buf[1024];
+					auto rc = cur_socket.recv(buf, 1024);
+					if (rc > 0) {
 //					std::cout << "Read " << rc << " bytes from client "
 //						  << cur_socket.remote_address().to_string() << "\n";
 //					auto rmt_addr = cur_socket.remote_address();
 //					std::cout << rmt_addr.to_string();
 
-				} else {
-					event_loop.del(cur_socket);
+					} else {
+						event_loop.del(cur_socket);
+					}
+				} else if (ev & EventType::Out) {
+					ssize_t rc = cur_socket.send(http_reply+userdata.write_pos, sizeof(http_reply)-1-userdata.write_pos);
+
+					if (rc > 0) {
+						userdata.write_pos += rc;
+						if (userdata.write_pos == sizeof(http_reply) - 1) {
+							cur_socket.shutdown();
+							event_loop.del(cur_socket);
+						}
+					} else {
+						cur_socket.shutdown();
+						event_loop.del(cur_socket);
+					}
 				}
 			}
 		} catch (...) {
@@ -80,26 +95,27 @@ int main() {
 		}
 	});
 
-	event_loop.on_event(EventType::Out, [](auto& event_loop, File& so, EventType ev, user_data& userdata){
-		auto &cur_socket = socket_cast<AddressFamily::IPv6, SocketType::Stream>(so);
 
-		ssize_t rc = cur_socket.write(http_reply+userdata.write_pos, sizeof(http_reply)-1-userdata.write_pos);
-
-		try {
-			if (rc > 0) {
-				userdata.write_pos += rc;
-				if (userdata.write_pos == sizeof(http_reply) - 1) {
-					cur_socket.shutdown();
-					event_loop.del(cur_socket);
-				}
-			} else {
-				cur_socket.shutdown();
-				event_loop.del(cur_socket);
-			}
-		} catch (...) {
-
-		}
-	});
+//	event_loop.on_event(EventType::Out, [](auto& event_loop, File& so, EventType ev, user_data& userdata){
+//		auto &cur_socket = socket_cast<AddressFamily::IPv6, SocketType::Stream>(so);
+//
+//		ssize_t rc = cur_socket.write(http_reply+userdata.write_pos, sizeof(http_reply)-1-userdata.write_pos);
+//
+//		try {
+//			if (rc > 0) {
+//				userdata.write_pos += rc;
+//				if (userdata.write_pos == sizeof(http_reply) - 1) {
+//					cur_socket.shutdown();
+//					event_loop.del(cur_socket);
+//				}
+//			} else {
+//				cur_socket.shutdown();
+//				event_loop.del(cur_socket);
+//			}
+//		} catch (...) {
+//
+//		}
+//	});
 
 	event_loop.run();
 }

@@ -97,7 +97,7 @@ int main() {
 	event_loop.on_event(EventType::In, [](auto& event_loop, File& so, EventType ev, auto& userdata){
 		auto &cur_socket = socket_cast<AddressFamily::IPv6, SocketType::Stream>(so);
 
-		std::cout << "FD " << cur_socket.fd() << " In event\n";
+		std::cout << "FD " << cur_socket.fd() << " In event " << (int)ev << "\n";
 
 		if (userdata.is_listening_socket) {
 			auto client_socket = cur_socket.accept();
