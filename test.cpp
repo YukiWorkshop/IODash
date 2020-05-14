@@ -158,8 +158,8 @@ int main() {
 				event_loop.del(cur_socket);
 			}
 		} else {
-			std::cout << "Timer fires!\n";
-			static_cast<Timer&>(so).read();
+			std::cout << "Timer fires! " << *static_cast<Timer&>(so).read() << "\n";
+			static_cast<Timer&>(so).stop();
 		}
 	});
 

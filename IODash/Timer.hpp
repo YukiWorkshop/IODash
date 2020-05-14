@@ -69,7 +69,7 @@ namespace IODash {
 		void stop() {
 			itimerspec tm;
 
-			memset(&tm.it_value, 0, sizeof(struct timespec));
+			memset(&tm, 0, sizeof(struct itimerspec));
 
 			if (timerfd_settime(fd_, 0, &tm, nullptr))
 				throw std::system_error(errno, std::system_category(), "timerfd_settime");
