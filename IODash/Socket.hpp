@@ -98,6 +98,14 @@ namespace IODash {
 			return {newfd};
 		}
 
+		int setsockopt(int __level, int __optname, const void *__optval, socklen_t __optlen) {
+			return ::setsockopt(fd_, __level, __optname, __optval, __optlen);
+		}
+
+		int getsockopt(int __level, int __optname, void *__optval, socklen_t *__optlen) {
+			return ::getsockopt(fd_, __level, __optname, __optval, __optlen);
+		}
+
 		ssize_t send(const void *__buf, size_t __len, int __flags = 0) {
 			return ::send(fd_, __buf, __len, __flags);
 		}

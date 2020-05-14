@@ -73,6 +73,24 @@ int main() {
 
 	std::cout << "socketpair test: " << buf0 << "\n";
 
+	int32_t sndbufsize = 1024 * 1024 * 10;
+	socklen_t psst = 4;
+	sp.first.setsockopt(SOL_SOCKET, SO_SNDBUF, &sndbufsize, psst);
+
+	sp.first.getsockopt(SOL_SOCKET, SO_SNDBUF, &sndbufsize, &psst);
+	std::cout << "snd buf size: " << sndbufsize << "\n";
+
+
+	std::vector<uint8_t> largebuf(1024 * 1024, 'a');
+	auto rc0 = sp.first.write(largebuf.data(), largebuf.size());
+	std::cout << "socketpair test2: " << rc0 << "\n";
+	std::cout << "socketpair test2: " << strerror(errno) << "\n";
+
+	std::vector<uint8_t> largebuf2(1024 * 1024 * 10);
+	auto rc = sp.second.read(largebuf2.data(), largebuf2.size());
+	std::cout << "socketpair test2: " << rc << "\n";
+
+
 	// UDP sendto, easy
 	Socket<AddressFamily::IPv4, SocketType::Datagram> socket0;
 	socket0.create();
