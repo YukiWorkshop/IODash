@@ -16,12 +16,12 @@
 #include <system_error>
 #include <unordered_map>
 
+#include <sys/ioctl.h>
+
 #ifdef __linux__
-#include <asm-generic/termios.h>
-extern int ioctl (int __fd, unsigned long int __request, ...) __THROW;
+#include <asm-generic/termbits.h>
 #else
 #include <termios.h>
-#include <sys/ioctl.h>
 #endif
 
 #include "File.hpp"

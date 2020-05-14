@@ -116,7 +116,11 @@ int main() {
 	std::cout << "sleeping for 1.5 secs...\n";
 	Timer tmtm;
 	tmtm.set_timeout(1.5);
-	tmtm.read();
+	std::cout << *tmtm.read() << "\n";
+
+	std::cout << "sleeping for 2 secs...\n";
+	tmtm.set_timeout(2);
+	std::cout << *tmtm.read() << "\n";
 
 	std::cout << "Done sleeping!\n";
 
