@@ -16,13 +16,13 @@
 #include <system_error>
 #include <unordered_map>
 
-#include <sys/ioctl.h>
-
 #ifdef __linux__
 #include <asm-generic/termios.h>
-#endif
-
+extern int ioctl (int __fd, unsigned long int __request, ...) __THROW;
+#else
 #include <termios.h>
+#include <sys/ioctl.h>
+#endif
 
 #include "File.hpp"
 
@@ -96,7 +96,7 @@ static const std::unordered_map<uint, uint> speed2b = {
 
 namespace IODash {
 
-	enum SerialParity : uint8_t {
+	enum class SerialParity : uint8_t {
 		None, Even, Odd
 	};
 

@@ -104,33 +104,48 @@ int main() {
 
 	std::cout << "listening on: " << to_string(socket_cast<AddressFamily::Any, SocketType::Datagram>(socket1).local_address()) << "\n";
 
+	enum {
+		Listener, T1mer, Client
+	};
+
 	struct user_data {
-		bool is_listening_socket = false;
+		int type;
 		int some_data;
 	};
 
+	std::cout << "sleeping for 1.5 secs...\n";
+	Timer tmtm;
+	tmtm.set_timeout(1.5);
+	tmtm.read();
+
+	std::cout << "Done sleeping!\n";
+
+	tmtm.set_interval(1.5);
+
+
 	EventLoop<EventBackend::EPoll, user_data> event_loop;
-	event_loop.add(socket1, EventType::In, {true});
+	event_loop.add(socket1, EventType::In, {Listener});
+	event_loop.add(tmtm, EventType::In, {T1mer});
 
 	event_loop.on_event(EventType::In, [](auto& event_loop, File& so, EventType ev, auto& userdata){
 		auto &cur_socket = socket_cast<AddressFamily::IPv6, SocketType::Stream>(so);
 
 		std::cout << "FD " << cur_socket.fd() << " In event " << (int)ev << "\n";
 
-		if (userdata.is_listening_socket) {
+		if (userdata.type == Listener) {
 			auto client_socket = cur_socket.accept();
 			if (client_socket) {
 				std::cout << "New client " << client_socket.fd() << ": " << client_socket.remote_address().to_string() << "\n";
-				event_loop.add(client_socket, EventType::In);
+				event_loop.add(client_socket, EventType::In, {Client});
 			}
-		} else {
+		} else if (userdata.type == Client) {
 			char buf[128];
 			auto rc = cur_socket.recv(buf, 128);
 			if (rc > 0) {
 				std::cout << "Read " << rc << " bytes from client "
 					  << cur_socket.remote_address().to_string() << "\n";
 
-				event_loop.modify(cur_socket, EventType::In, {false, 23333});
+				event_loop.modify(cur_socket, EventType::In, {Client, 23333});
 				// Or
 				event_loop.modify(cur_socket, EventType::In);
 				userdata.some_data = 23333;
@@ -138,6 +153,9 @@ int main() {
 			} else {
 				event_loop.del(cur_socket);
 			}
+		} else {
+			std::cout << "Timer fires!\n";
+			static_cast<Timer&>(so).read();
 		}
 	});
 

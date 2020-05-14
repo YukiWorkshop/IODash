@@ -15,6 +15,8 @@
 #include "IODash/EventLoop.hpp"
 #include "IODash/File.hpp"
 #include "IODash/Socket.hpp"
+#include "IODash/Serial.hpp"
+#include "IODash/Timer.hpp"
 #include "IODash/SocketAddress.hpp"
 
 namespace IODash {
