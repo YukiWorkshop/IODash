@@ -188,6 +188,7 @@ namespace IODash {
 		}
 
 	public:
+		using File::set_nonblocking;
 
 		auto speed() {
 			struct {

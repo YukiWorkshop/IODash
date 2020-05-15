@@ -23,6 +23,17 @@ namespace IODash {
 		int fd_ = -1;
 		std::shared_ptr<int> refcounter;
 
+		void set_nonblocking(bool __nonblocking = true) {
+			int flags = fcntl(fd_, F_GETFL, 0);
+			if (flags == -1)
+				throw std::system_error(errno, std::system_category(), "fcntl F_GETFL");
+
+			flags = __nonblocking ? (flags | O_NONBLOCK) : (flags & ~O_NONBLOCK);
+
+			if (fcntl(fd_, F_SETFL, flags))
+				throw std::system_error(errno, std::system_category(), "fcntl F_SETFL");
+		}
+
 	public:
 		File() = default;
 

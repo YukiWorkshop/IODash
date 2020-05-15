@@ -125,6 +125,7 @@ int main() {
 	std::cout << "Done sleeping!\n";
 
 	tmtm.set_interval(1.5);
+	tmtm.set_nonblocking();
 
 
 	EventLoop<EventBackend::EPoll, user_data> event_loop;

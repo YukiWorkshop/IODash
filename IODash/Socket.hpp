@@ -39,7 +39,7 @@ namespace IODash {
 
 		}
 
-		using File::fd;
+		using File::set_nonblocking;
 
 		SocketAddress<AF> local_address() {
 			SocketAddress<AF> ret;

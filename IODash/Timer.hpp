@@ -42,6 +42,8 @@ namespace IODash {
 			refcounter.reset((int *)nullptr);
 		}
 
+		using File::set_nonblocking;
+
 		void set_interval(double __seconds) {
 			itimerspec tm;
 
