@@ -100,7 +100,8 @@ int main() {
 	// TCP server event loop
 	Socket<AddressFamily::IPv6, SocketType::Stream> socket1;
 	socket1.create();
-	socket1.listen({"[::]:8888"});
+	socket1.bind({"[::]:8888"});
+	socket1.listen();
 
 	std::cout << "listening on: " << to_string(socket_cast<AddressFamily::Any, SocketType::Datagram>(socket1).local_address()) << "\n";
 

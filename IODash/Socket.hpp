@@ -70,16 +70,20 @@ namespace IODash {
 			refcounter.reset((int *)nullptr);
 		}
 
-		void listen(const SocketAddress<AF>& __addr, int __backlog = 256) {
-			int enable = 1;
+		void set_reuseaddr(bool __enable = true) {
+			int enable = __enable ? 1 : 0;
 			if (::setsockopt(fd_, SOL_SOCKET, SO_REUSEADDR, &enable, sizeof(enable)))
 				throw std::system_error(errno, std::system_category(), "failed to setsockopt");
+		}
 
-			if (::bind(fd_, __addr.raw(), __addr.size()))
-				throw std::system_error(errno, std::system_category(), "failed to bind socket");
-
+		void listen(int __backlog = 256) {
 			if (::listen(fd_, __backlog))
 				throw std::system_error(errno, std::system_category(), "failed to listen on socket");
+		}
+
+		void bind(const SocketAddress<AF>& __addr) {
+			if (::bind(fd_, __addr.raw(), __addr.size()))
+				throw std::system_error(errno, std::system_category(), "failed to bind socket");
 		}
 
 		bool connect(const SocketAddress<AF>& __addr) {

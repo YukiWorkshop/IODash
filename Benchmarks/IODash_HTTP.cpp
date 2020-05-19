@@ -33,7 +33,8 @@ int main() {
 	Socket<AddressFamily::IPv4, SocketType::Stream> socket1;
 
 	socket1.create();
-	socket1.listen({"127.0.0.1:8082"});
+	socket1.bind({"127.0.0.1:8082"});
+	socket1.listen();
 
 	std::cout << "listening on: " << to_string(socket_cast<AddressFamily::Any, SocketType::Datagram>(socket1).local_address()) << "\n";
 
