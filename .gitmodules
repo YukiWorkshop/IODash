@@ -1,0 +1,3 @@
+[submodule "cpp_modules/portable-endian"]
+	path = cpp_modules/portable-endian
+	url = https://github.com/YukiWorkshop/portable-endian

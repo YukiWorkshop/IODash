@@ -21,6 +21,8 @@
 #include <sys/epoll.h>
 #endif
 
+#include <portable-endian.h>
+
 #include "Socket.hpp"
 
 namespace IODash {
