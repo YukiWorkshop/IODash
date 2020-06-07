@@ -16,7 +16,10 @@
 #include <functional>
 
 #include <poll.h>
+
+#ifdef __linux__
 #include <sys/epoll.h>
+#endif
 
 #include "Socket.hpp"
 
@@ -172,6 +175,7 @@ namespace IODash {
 
 	};
 
+#ifdef __linux__
 	template<typename T>
 	class EventLoop<EventBackend::EPoll, T> : public EventLoop<EventBackend::Any, T> {
 	protected:
@@ -281,6 +285,7 @@ namespace IODash {
 
 		}
 	};
+#endif
 
 	template<typename T>
 	class EventLoop<EventBackend::Poll, T> : public EventLoop<EventBackend::Any, T> {
