@@ -3,14 +3,18 @@ project(IODash)
 
 set(CMAKE_CXX_STANDARD 17)
 
-include_directories(cpp_modules/portable-endian)
 
-add_executable(IODash_Test
-        test.cpp
-        IODash.hpp IODash/SocketAddress.hpp IODash/File.hpp IODash/Socket.hpp IODash/EventLoop.hpp IODash/Serial.hpp IODash/Timer.hpp)
+
+add_library(IODash IODash.cpp IODash.hpp
+        IODash/SocketAddress.hpp IODash/File.hpp IODash/Socket.hpp IODash/EventLoop.hpp IODash/Serial.hpp IODash/Timer.hpp
+        )
+target_include_directories(IODash PUBLIC . cpp_modules/portable-endian)
+
+add_executable(IODash_Test test.cpp)
+target_link_libraries(IODash_Test IODash)
 
 add_executable(IODash_Benchmark_HTTP Benchmarks/IODash_HTTP.cpp)
-target_include_directories(IODash_Benchmark_HTTP PUBLIC .)
+target_link_libraries(IODash_Benchmark_HTTP IODash)
 
 if (DEFINED BUILD_BENCHMARKS AND (${BUILD_BENCHMARKS}))
     add_executable(libuv_Benchmark_HTTP Benchmarks/libuv_HTTP.c)
