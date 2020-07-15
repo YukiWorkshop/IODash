@@ -31,6 +31,7 @@ namespace IODash {
 	class Socket : public File {
 	private:
 		using File::open;
+		using File::stat;
 	public:
 		Socket() = default;
 

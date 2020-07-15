@@ -17,6 +17,8 @@
 #include <unistd.h>
 #include <fcntl.h>
 
+#include <sys/stat.h>
+
 namespace IODash {
 	class File {
 	protected:
@@ -91,12 +93,73 @@ namespace IODash {
 			}
 		}
 
+		struct stat stat() const {
+			struct stat stbuf;
+			int rc = ::fstat(fd_, &stbuf);
+			if (rc < 0)
+				throw std::system_error(errno, std::system_category(), "failed to stat");
+		}
+
 		ssize_t write(const void *__buf, size_t __len) {
 			return ::write(fd_, __buf, __len);
 		}
 
 		ssize_t read(void *__buf, size_t __len) {
 			return ::read(fd_, __buf, __len);
+		}
+
+		ssize_t write_all(const void *__buf, size_t __len) {
+			size_t written = 0;
+
+			while (written < __len) {
+				ssize_t rc = write((uint8_t *)__buf + written, __len - written);
+				if (rc > 0) {
+					written += rc;
+				} else if (rc == 0) {
+					return written;
+				} else {
+					return -1;
+				}
+			}
+
+			return written;
+		}
+
+		template<typename T>
+		bool write_all(const std::vector<T> &__buf) {
+			return write_all(__buf.data(), __buf.size() * sizeof(T));
+		}
+
+		template<typename T>
+		bool write_all(const T &__buf) {
+			return write_all(__buf.data(), __buf.size());
+		}
+
+		ssize_t read_all(void *__buf, size_t __len) {
+			size_t readd = 0;
+
+			while (readd < __len) {
+				ssize_t rc = read((uint8_t *)__buf + readd, __len - readd);
+				if (rc > 0) {
+					readd += rc;
+				} else if (rc == 0) {
+					return readd;
+				} else {
+					return -1;
+				}
+			}
+
+			return readd;
+		}
+
+		std::optional<std::vector<uint8_t>> read_all(size_t __len) {
+			std::vector<uint8_t> ret(__len);
+
+			if (read_all(ret.data(), __len) == -1) {
+				return {};
+			} else {
+				return ret;
+			}
 		}
 
 		ssize_t putc(uint8_t __c) {

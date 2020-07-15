@@ -86,10 +86,17 @@ int main() {
 	std::cout << "socketpair test2: " << rc0 << "\n";
 	std::cout << "socketpair test2: " << strerror(errno) << "\n";
 
+	std::vector<uint8_t> data8(16);
+	std::vector<uint16_t> data16(16);
+
+	sp.first.write_all(data8);
+	sp.first.write_all(data16);
+
 	std::vector<uint8_t> largebuf2(1024 * 1024 * 10);
 	auto rc = sp.second.read(largebuf2.data(), largebuf2.size());
 	std::cout << "socketpair test2: " << rc << "\n";
 
+	auto rd = sp.second.read_all(16);
 
 	// UDP sendto, easy
 	Socket<AddressFamily::IPv4, SocketType::Datagram> socket0;
