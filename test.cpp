@@ -113,7 +113,8 @@ int main() {
 		int type;
 		int some_data;
 	};
-
+    
+#ifdef __linux__
 	std::cout << "sleeping for 1.5 secs...\n";
 	Timer tmtm;
 	tmtm.set_timeout(1.5);
@@ -166,4 +167,5 @@ int main() {
 	});
 
 	event_loop.run();
+#endif
 }

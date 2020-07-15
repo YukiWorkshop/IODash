@@ -43,7 +43,11 @@ int main() {
 		uint32_t write_pos = 0;
 	};
 
-	EventLoop<EventBackend::EPoll, user_data> event_loop;
+#ifdef __linux__
+    EventLoop<EventBackend::EPoll, user_data> event_loop;
+#else
+    EventLoop<EventBackend::Poll, user_data> event_loop;
+#endif
 	event_loop.add(socket1, EventType::In, {true});
 
 //	int fd = open("/dev/null", O_RDWR);
