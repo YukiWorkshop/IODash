@@ -45,8 +45,10 @@ static const std::unordered_map<uint, uint> b2speed = {
 	{B38400, 38400},
 	{B57600, 57600},
 	{B115200, 115200},
-	{B230400, 230400},
-	{B460800, 460800},
+	{B230400, 230400}
+#ifdef __linux__
+    ,
+    {B460800, 460800},
 	{B500000, 500000},
 	{B576000, 576000},
 	{B921600, 921600},
@@ -58,6 +60,7 @@ static const std::unordered_map<uint, uint> b2speed = {
 	{B3000000, 3000000},
 	{B3500000, 3500000},
 	{B4000000, 4000000}
+#endif
 };
 
 static const std::unordered_map<uint, uint> speed2b = {
@@ -79,8 +82,10 @@ static const std::unordered_map<uint, uint> speed2b = {
 	{38400, B38400},
 	{57600, B57600},
 	{115200, B115200},
-	{230400, B230400},
-	{460800, B460800},
+	{230400, B230400}
+#ifdef __linux__
+    ,
+    {460800, B460800},
 	{500000, B500000},
 	{576000, B576000},
 	{921600, B921600},
@@ -92,6 +97,7 @@ static const std::unordered_map<uint, uint> speed2b = {
 	{3000000, B3000000},
 	{3500000, B3500000},
 	{4000000, B4000000}
+#endif
 };
 
 namespace IODash {
@@ -103,12 +109,12 @@ namespace IODash {
 	class Serial : public File {
 	private:
 		void __tcgets(termios &__tio) {
-			if (ioctl(fd_, TCGETS, &__tio))
+			if (tcgetattr(fd_, &__tio))
 				throw std::system_error(errno, std::system_category(), "TCGETS");
 		}
 
 		void __tcsets(termios &__tio) {
-			if (ioctl(fd_, TCSETS, &__tio))
+			if (tcsetattr(fd_, 0, &__tio))
 				throw std::system_error(errno, std::system_category(), "TCSETS");
 		}
 
@@ -131,8 +137,13 @@ namespace IODash {
 				struct termios tio;
 
 				__tcgets(tio);
-				tio.c_cflag &= ~CBAUD;
-				tio.c_cflag |= it->second;
+                #ifdef CBAUD
+                        tio.c_cflag &= ~CBAUD;
+                        tio.c_cflag |= it->second;
+                #else
+                        cfsetispeed(&tio, it->second);
+                        cfsetospeed(&tio, it->second);
+                #endif
 				__tcsets(tio);
 			} else {
 #ifdef __linux__
@@ -174,10 +185,10 @@ namespace IODash {
 #else
 			struct termios tio;
 
-			if (ioctl(fd_, TCGETS, &tio))
+			if (tcgetattr(fd_, &tio))
 				throw std::system_error(errno, std::system_category(), "TCGETS");
 
-			auto it = b2speed.find(tio.c_cflag & CBAUD);
+			auto it = b2speed.find(cfgetospeed(&tio));
 
 			if (it != b2speed.end()) {
 				return it->second;
