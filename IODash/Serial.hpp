@@ -109,12 +109,20 @@ namespace IODash {
 	class Serial : public File {
 	private:
 		void __tcgets(termios &__tio) {
+			#ifdef __linux__
+			if (ioctl(fd_, TCGETS, &__tio))
+			#else
 			if (tcgetattr(fd_, &__tio))
+			#endif
 				throw std::system_error(errno, std::system_category(), "TCGETS");
 		}
 
 		void __tcsets(termios &__tio) {
+			#ifdef __linux__
+			if (ioctl(fd_, TCSETS, &__tio))
+			#else
 			if (tcsetattr(fd_, 0, &__tio))
+			#endif
 				throw std::system_error(errno, std::system_category(), "TCSETS");
 		}
 
@@ -185,7 +193,11 @@ namespace IODash {
 #else
 			struct termios tio;
 
+			#ifdef __linux__
+			if (ioctl(fd_, TCGETS, &tio))
+			#else
 			if (tcgetattr(fd_, &tio))
+			#endif
 				throw std::system_error(errno, std::system_category(), "TCGETS");
 
 			auto it = b2speed.find(cfgetospeed(&tio));
