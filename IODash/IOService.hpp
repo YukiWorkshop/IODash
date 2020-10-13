@@ -34,28 +34,36 @@ namespace IODash {
 			size_t buffer_pos = 0;
 		};
 	private:
-		EventLoop<EB> event_loop;
-		std::unordered_multimap<int, PerFileContext> files;
+		EventLoop<EB, PerFileContext> event_loop;
 
 	public:
 		void async_read(const File& __file, Buffer&& __buf, const ReadHandler& __handler, bool __once = true) {
 			auto it = event_loop.watched_objects().find(__file.fd());
+
 			if (it == event_loop.watched_objects().end()) {
-				event_loop.add(__file, EventType::In|EventType::Error|EventType::Hangup);
+				PerFileContext fctx;
+				fctx.once[0] = __once;
+				fctx.buffer_read = std::forward<Buffer>(__buf);
+				fctx.read_handler = std::make_unique<ReadHandler>(__handler);
+				event_loop.add(__file, EventType::In|EventType::Error|EventType::Hangup, fctx);
 			} else {
+				auto &fctx = std::get<2>(it.second);
+				fctx.once[0] = __once;
+				fctx.buffer_read = std::forward<Buffer>(__buf);
+				fctx.read_handler = std::make_unique<ReadHandler>(__handler);
 				event_loop.modify(__file, std::get<1>(it.second)|EventType::In|EventType::Error|EventType::Hangup);
 			}
-
-			PerFileContext fctx;
-			fctx.once[0] = __once;
-			fctx.buffer_read = std::forward<Buffer>(__buf);
-			fctx.read_handler = std::make_unique<ReadHandler>(__handler);
-			files.emplace({__file.fd(), std::move(fctx)});
-
 		}
 
 		void run() {
-
+			event_loop.on_events([&](auto& ev_loop, File& file, EventType events, PerFileContext& userdata){
+				if (events & EventType::In) {
+					if (userdata.handler_read) {
+						// TODO
+						file.read(userdata.buffer_read.data(), userdata.buffer_read.size());
+					}
+				}
+			});
 		}
 	};
 }

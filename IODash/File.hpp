@@ -29,7 +29,7 @@ namespace IODash {
 
 	typedef std::function<void(int, Buffer)> ReadHandler;
 	typedef std::function<void(int, size_t)> WriteHandler;
-	typedef std::function<void(int)> AcceptHandler;
+	typedef std::function<void(int )> AcceptHandler;
 
 	class File {
 	protected:

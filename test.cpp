@@ -150,7 +150,7 @@ int main() {
 	event_loop.add(socket1, EventType::In, {Listener});
 	event_loop.add(tmtm, EventType::In, {T1mer});
 
-	event_loop.on_event(EventType::In, [](auto& event_loop, File& so, EventType ev, auto& userdata){
+	event_loop.on_events([](auto& event_loop, File& so, EventType ev, auto& userdata){
 		auto &cur_socket = socket_cast<AddressFamily::IPv6, SocketType::Stream>(so);
 
 		std::cout << "FD " << cur_socket.fd() << " In event " << (int)ev << "\n";
