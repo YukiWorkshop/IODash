@@ -88,7 +88,11 @@ namespace IODash {
 		return x;
 	}
 
-	template<EventBackend EB, typename UD = int>
+#ifdef __linux__
+	template<EventBackend EB = EventBackend::EPoll, typename UD = int>
+#else
+	template<EventBackend EB = EventBackend::Poll, typename UD = int>
+#endif
 	class EventLoop {
 	private:
 

@@ -13,16 +13,28 @@
 #pragma once
 
 #include <memory>
+#include <functional>
 
 #include <unistd.h>
 #include <fcntl.h>
 
 #include <sys/stat.h>
 
+#include "Buffer.hpp"
+
 namespace IODash {
+	enum class AsyncCapable : uint8_t {
+		Unknown = 0, True = 1, False = 2
+	};
+
+	typedef std::function<void(int, Buffer)> ReadHandler;
+	typedef std::function<void(int, size_t)> WriteHandler;
+	typedef std::function<void(int)> AcceptHandler;
+
 	class File {
 	protected:
 		int fd_ = -1;
+		AsyncCapable async_capable_ = AsyncCapable::Unknown;
 		std::shared_ptr<int> refcounter;
 
 		void set_nonblocking(bool __nonblocking = true) {
@@ -132,7 +144,7 @@ namespace IODash {
 
 		template<typename T>
 		bool write_all(const T &__buf) {
-			return write_all(__buf.data(), __buf.size());
+			return write_all(__buf.inner_data(), __buf.size());
 		}
 
 		ssize_t read_all(void *__buf, size_t __len) {

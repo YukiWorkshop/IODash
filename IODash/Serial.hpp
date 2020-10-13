@@ -213,6 +213,10 @@ namespace IODash {
 	public:
 		using File::set_nonblocking;
 
+		Serial() {
+			async_capable_ = AsyncCapable::True;
+		}
+
 		auto speed() {
 			struct {
 				Serial *p;

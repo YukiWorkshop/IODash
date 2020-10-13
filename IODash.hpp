@@ -18,6 +18,8 @@
 #include "IODash/Serial.hpp"
 #include "IODash/Timer.hpp"
 #include "IODash/SocketAddress.hpp"
+#include "IODash/Buffer.hpp"
+#include "IODash/IOService.hpp"
 
 namespace IODash {
 	template <auto T>

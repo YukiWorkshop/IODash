@@ -18,8 +18,17 @@
 
 using namespace IODash;
 
+const char some_static_data[] = "aaaaa";
 
 int main() {
+	IOService a;
+
+	auto iobuf0 = IODash::Buffer::reference(some_static_data);
+	std::vector<uint8_t> some_generated_data(16);
+	auto iobuf1 = IODash::Buffer::steal(some_generated_data);
+	char *some_volatile_pod_type_data = (char *)alloca(16);
+	auto iobuf2 = IODash::Buffer::copy(some_volatile_pod_type_data, 16);
+
 	// It's easy
 	SocketAddress<AddressFamily::IPv4> s("127.0.0.1:8080");
 

@@ -7,7 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 
 add_library(IODash IODash.cpp IODash.hpp
         IODash/SocketAddress.hpp IODash/File.hpp IODash/Socket.hpp IODash/EventLoop.hpp IODash/Serial.hpp IODash/Timer.hpp
-        )
+        IODash/IOService.hpp IODash/Buffer.hpp)
 target_include_directories(IODash PUBLIC . cpp_modules/portable-endian)
 
 add_executable(IODash_Test test.cpp)
