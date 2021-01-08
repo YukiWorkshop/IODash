@@ -68,6 +68,7 @@ private:
 		if (!error)
 		{
 			socket_.close();
+
 			delete this;
 		}
 		else
@@ -77,7 +78,7 @@ private:
 	}
 
 	tcp::socket socket_;
-	enum { max_length = 1024 };
+	enum { max_length = 1024, a = 111 };
 	char data_[max_length];
 };
 

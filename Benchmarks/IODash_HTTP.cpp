@@ -53,52 +53,52 @@ int main() {
 //	int fd = open("/dev/null", O_RDWR);
 //	dup2(fd, STDOUT_FILENO);
 
-	event_loop.on_event(EventType::In|EventType::Out, [](auto& event_loop, File& so, EventType ev, auto& userdata){
-		auto &cur_socket = socket_cast<AddressFamily::IPv4, SocketType::Stream>(so);
-
-		try {
-			if (userdata.is_listening_socket) {
-				auto client_socket = cur_socket.accept();
-				if (client_socket) {
-//					auto rmt_addr = client_socket.remote_address();
-//					std::cout << rmt_addr.to_string();
-//					printf("New %s client: %s\n",
-//					       rmt_addr.family() == AddressFamily::IPv4 ? "IPv4" : "IPv6",
-//					       rmt_addr.to_string().c_str());
-					event_loop.add(client_socket, EventType::In | EventType::Out);
-				}
-			} else {
-				if (ev & EventType::In) {
-					char buf[1024];
-					auto rc = cur_socket.recv(buf, 1024);
-					if (rc > 0) {
-//					std::cout << "Read " << rc << " bytes from client "
-//						  << cur_socket.remote_address().to_string() << "\n";
-//					auto rmt_addr = cur_socket.remote_address();
-//					std::cout << rmt_addr.to_string();
-
-					} else {
-						event_loop.del(cur_socket);
-					}
-				} else if (ev & EventType::Out) {
-					ssize_t rc = cur_socket.send(http_reply+userdata.write_pos, sizeof(http_reply)-1-userdata.write_pos);
-
-					if (rc > 0) {
-						userdata.write_pos += rc;
-						if (userdata.write_pos == sizeof(http_reply) - 1) {
-							cur_socket.shutdown();
-							event_loop.del(cur_socket);
-						}
-					} else {
-						cur_socket.shutdown();
-						event_loop.del(cur_socket);
-					}
-				}
-			}
-		} catch (...) {
-
-		}
-	});
+//	event_loop.on_event(EventType::In|EventType::Out, [](auto& event_loop, File& so, EventType ev, auto& userdata){
+//		auto &cur_socket = socket_cast<AddressFamily::IPv4, SocketType::Stream>(so);
+//
+//		try {
+//			if (userdata.is_listening_socket) {
+//				auto client_socket = cur_socket.accept();
+//				if (client_socket) {
+////					auto rmt_addr = client_socket.remote_address();
+////					std::cout << rmt_addr.to_string();
+////					printf("New %s client: %s\n",
+////					       rmt_addr.family() == AddressFamily::IPv4 ? "IPv4" : "IPv6",
+////					       rmt_addr.to_string().c_str());
+//					event_loop.add(client_socket, EventType::In | EventType::Out);
+//				}
+//			} else {
+//				if (ev & EventType::In) {
+//					char buf[1024];
+//					auto rc = cur_socket.recv(buf, 1024);
+//					if (rc > 0) {
+////					std::cout << "Read " << rc << " bytes from client "
+////						  << cur_socket.remote_address().to_string() << "\n";
+////					auto rmt_addr = cur_socket.remote_address();
+////					std::cout << rmt_addr.to_string();
+//
+//					} else {
+//						event_loop.del(cur_socket);
+//					}
+//				} else if (ev & EventType::Out) {
+//					ssize_t rc = cur_socket.send(http_reply+userdata.write_pos, sizeof(http_reply)-1-userdata.write_pos);
+//
+//					if (rc > 0) {
+//						userdata.write_pos += rc;
+//						if (userdata.write_pos == sizeof(http_reply) - 1) {
+//							cur_socket.shutdown();
+//							event_loop.del(cur_socket);
+//						}
+//					} else {
+//						cur_socket.shutdown();
+//						event_loop.del(cur_socket);
+//					}
+//				}
+//			}
+//		} catch (...) {
+//
+//		}
+//	});
 
 
 //	event_loop.on_event(EventType::Out, [](auto& event_loop, File& so, EventType ev, user_data& userdata){

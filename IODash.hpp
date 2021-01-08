@@ -19,7 +19,7 @@
 #include "IODash/Timer.hpp"
 #include "IODash/SocketAddress.hpp"
 #include "IODash/Buffer.hpp"
-#include "IODash/IOService.hpp"
+//#include "IODash/IOService.hpp"
 
 namespace IODash {
 	template <auto T>
@@ -34,21 +34,5 @@ namespace IODash {
 			default:
 				return {};
 		}
-	}
-
-	template <auto T0, auto T1, typename T2>
-	inline Socket<T0, T1>& socket_cast(T2 &__in) {
-		return *((Socket<T0, T1> *)&__in);
-	}
-
-	template <auto T>
-	inline std::pair<Socket<AddressFamily::Unix, T>, Socket<AddressFamily::Unix, T>> socket_pair() {
-		int fd[2];
-
-		if (socketpair(AF_UNIX, (int)T, 0, fd))
-			throw std::system_error(errno, std::system_category(), "socketpair");
-
-		std::pair<Socket<AddressFamily::Unix, T>, Socket<AddressFamily::Unix, T>> ret(fd[0], fd[1]);
-		return ret;
 	}
 }

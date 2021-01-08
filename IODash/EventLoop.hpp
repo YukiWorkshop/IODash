@@ -161,7 +161,7 @@ namespace IODash {
 			watched_fds.erase(__target.fd());
 		}
 
-		const std::unordered_map<int, std::tuple<File, EventType, UD>>& watched_objects() const {
+		std::unordered_map<int, std::tuple<File, EventType, UD>>& watched_objects() {
 			return watched_fds;
 		}
 

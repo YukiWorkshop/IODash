@@ -13,6 +13,7 @@
 #pragma once
 
 #include <vector>
+#include <optional>
 #include <system_error>
 
 #include <unistd.h>
@@ -98,9 +99,18 @@ namespace IODash {
 				throw std::system_error(errno, std::system_category(), "failed to shutdown socket");
 		}
 
-		Socket<AF, ST> accept() {
+		std::optional<Socket<AF, ST>> accept() {
 			int newfd = ::accept(fd_, nullptr, nullptr);
-			return {newfd};
+
+			if (newfd > 0) {
+				return {newfd};
+			} else {
+				if (errno == EAGAIN || errno == EWOULDBLOCK) {
+					return {};
+				} else {
+					throw std::system_error(errno, std::system_category(), "failed to accept");
+				}
+			}
 		}
 
 		int setsockopt(int __level, int __optname, const void *__optval, socklen_t __optlen) {
@@ -128,5 +138,24 @@ namespace IODash {
 			return ::recvfrom(fd_, __buf, __len, __flags, __addr.raw(), &sz);
 		}
 	};
+
+	typedef std::function<void(int)> ConnectHandler;
+	typedef std::function<void(int, std::optional<Socket<AddressFamily::Any, SocketType::Any>>&)> AcceptHandler;
+
+	template <auto T0, auto T1, typename T2>
+	inline Socket<T0, T1>& socket_cast(T2 &__in) {
+		return *((Socket<T0, T1> *)&__in);
+	}
+
+	template <auto T>
+	inline std::pair<Socket<AddressFamily::Unix, T>, Socket<AddressFamily::Unix, T>> socket_pair() {
+		int fd[2];
+
+		if (socketpair(AF_UNIX, (int)T, 0, fd))
+			throw std::system_error(errno, std::system_category(), "socketpair");
+
+		std::pair<Socket<AddressFamily::Unix, T>, Socket<AddressFamily::Unix, T>> ret(fd[0], fd[1]);
+		return ret;
+	}
 }
 

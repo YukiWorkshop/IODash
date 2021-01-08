@@ -21,13 +21,22 @@ using namespace IODash;
 const char some_static_data[] = "aaaaa";
 
 int main() {
-	IOService a;
+//	IOService iosvc;
+
+	Socket<AddressFamily::IPv4, SocketType::Datagram> socket00;
+	socket00.create();
+
+//	iosvc.async_read(socket00, IODash::Buffer(1024), [](int err, size_t bytes_read, const Buffer& buf){
+//
+//	});
 
 	auto iobuf0 = IODash::Buffer::reference(some_static_data);
 	std::vector<uint8_t> some_generated_data(16);
 	auto iobuf1 = IODash::Buffer::steal(some_generated_data);
 	char *some_volatile_pod_type_data = (char *)alloca(16);
 	auto iobuf2 = IODash::Buffer::copy(some_volatile_pod_type_data, 16);
+
+
 
 	// It's easy
 	SocketAddress<AddressFamily::IPv4> s("127.0.0.1:8080");
@@ -156,7 +165,9 @@ int main() {
 		std::cout << "FD " << cur_socket.fd() << " In event " << (int)ev << "\n";
 
 		if (userdata.type == Listener) {
-			auto client_socket = cur_socket.accept();
+			auto rc = cur_socket.accept();
+			auto &client_socket = *rc;
+
 			if (client_socket) {
 				std::cout << "New client " << client_socket.fd() << ": " << client_socket.remote_address().to_string() << "\n";
 				event_loop.add(client_socket, EventType::In, {Client});
