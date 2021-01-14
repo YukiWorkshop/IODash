@@ -41,6 +41,8 @@ int main() {
 	// It's easy
 	SocketAddress<AddressFamily::IPv4> s("127.0.0.1:8080");
 
+	assert(s.family() == AddressFamily::IPv4);
+
 	// Some maliciously crafted strings
 	s.from_string("1:6");
 	s.from_string(":6");

@@ -3,10 +3,8 @@ project(IODash)
 
 set(CMAKE_CXX_STANDARD 17)
 
-add_library(IODash IODash.cpp IODash.hpp
-        IODash/SocketAddress.hpp IODash/File.hpp IODash/Socket.hpp IODash/EventLoop.hpp IODash/Serial.hpp IODash/Timer.hpp
-        IODash/IOService.hpp IODash/Buffer.hpp)
-
+add_library(IODash INTERFACE)
+target_include_directories(IODash INTERFACE .)
 
 add_executable(IODash_Test test.cpp)
 target_link_libraries(IODash_Test IODash)

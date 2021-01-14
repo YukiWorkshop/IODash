@@ -31,7 +31,7 @@ namespace IODash {
 	template<AddressFamily AF>
 	class SocketAddress {
 	protected:
-		union {
+		union sa_any {
 			sockaddr s;
 			sockaddr_in in;
 			sockaddr_in6 in6;
@@ -51,8 +51,21 @@ namespace IODash {
 			memset(&sa, 0, sizeof(sa));
 		}
 
-		AddressFamily family() const noexcept {
-			return (AddressFamily)sa.s.sa_family;
+		auto family() const noexcept {
+			struct {
+				sa_any *sa;
+
+				operator AddressFamily() {
+					return (AddressFamily)sa->s.sa_family;
+				}
+
+				AddressFamily operator=(AddressFamily af) {
+					sa->s.sa_family = (uint16_t)af;
+					return af;
+				}
+			} ret{(sa_any *)(&sa)};
+
+			return ret;
 		}
 
 		virtual size_t size() const noexcept {
