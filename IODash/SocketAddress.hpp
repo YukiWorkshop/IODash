@@ -15,6 +15,7 @@
 #include <string>
 #include <tuple>
 #include <memory>
+#include <vector>
 
 #include <cinttypes>
 
@@ -80,15 +81,52 @@ namespace IODash {
 			return reinterpret_cast<const sockaddr *>(&sa);
 		}
 
-		SocketAddress<AddressFamily::IPv4>* as_ipv4() {
+		std::vector<uint8_t> serialize() {
+			std::vector<uint8_t> ret;
+
+			if (family() == AddressFamily::IPv4) {
+				ret.resize(sizeof(sockaddr_in));
+				memcpy(ret.data(), sa.in, sizeof(sockaddr_in));
+			} else if (family() == AddressFamily::IPv6) {
+				ret.resize(sizeof(sockaddr_in6));
+				memcpy(ret.data(), sa.in6, sizeof(sockaddr_in6));
+			} else if (family() == AddressFamily::Unix) {
+				ret.resize(sizeof(sockaddr_un));
+				memcpy(ret.data(), sa.un, sizeof(sockaddr_un));
+			}
+
+			return ret;
+		}
+
+		void deserialize(const std::vector<uint8_t>& data) {
+			if (data.size() > sizeof(sa)) {
+				throw std::logic_error("SockAddress: deserialize: data too large");
+			}
+
+			memcpy(sa, data.data(), data.size());
+		}
+
+		std::string to_string(bool __with_port = true) {
+			if (family() == AddressFamily::IPv4) {
+				return as_ipv4()->to_string(__with_port);
+			} else if (family() == AddressFamily::IPv6) {
+				return as_ipv6()->to_string(__with_port);
+			} else if (family() == AddressFamily::Unix) {
+				return std::string(as_unix()->to_string());
+			} else {
+				return {};
+			}
+		}
+
+		SocketAddress<AddressFamily::IPv4>* as_ipv4() noexcept {
 			return (SocketAddress<AddressFamily::IPv4>*)this;
 		}
 
-		SocketAddress<AddressFamily::IPv6>* as_ipv6() {
+		SocketAddress<AddressFamily::IPv6>* as_ipv6() noexcept {
 			return (SocketAddress<AddressFamily::IPv6>*)this;
 		}
 
-		SocketAddress<AddressFamily::Unix>* as_unix() {
+		SocketAddress<AddressFamily::Unix>* as_unix() noexcept {
 			return (SocketAddress<AddressFamily::Unix>*)this;
 		}
 	};

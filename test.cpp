@@ -54,6 +54,8 @@ int main() {
 	// Shortcuts
 	assert(s.as_ipv6()->port() == s.port());
 
+	std::cout << ((SocketAddress<AddressFamily::Any> *)&s)->to_string() << "\n";
+
 	// Easy
 	std::cout << s.to_string() << "\n";
 
