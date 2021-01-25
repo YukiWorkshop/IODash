@@ -81,7 +81,7 @@ namespace IODash {
 			return reinterpret_cast<const sockaddr *>(&sa);
 		}
 
-		std::vector<uint8_t> serialize() {
+		std::vector<uint8_t> serialize() const {
 			std::vector<uint8_t> ret;
 
 			if (family() == AddressFamily::IPv4) {
@@ -106,7 +106,7 @@ namespace IODash {
 			memcpy(sa, data.data(), data.size());
 		}
 
-		std::string to_string(bool __with_port = true) {
+		std::string to_string(bool __with_port = true) const {
 			if (family() == AddressFamily::IPv4) {
 				return as_ipv4()->to_string(__with_port);
 			} else if (family() == AddressFamily::IPv6) {
@@ -127,6 +127,18 @@ namespace IODash {
 		}
 
 		SocketAddress<AddressFamily::Unix>* as_unix() noexcept {
+			return (SocketAddress<AddressFamily::Unix>*)this;
+		}
+
+		SocketAddress<AddressFamily::IPv4>* as_ipv4() const noexcept {
+			return (SocketAddress<AddressFamily::IPv4>*)this;
+		}
+
+		SocketAddress<AddressFamily::IPv6>* as_ipv6() const noexcept {
+			return (SocketAddress<AddressFamily::IPv6>*)this;
+		}
+
+		SocketAddress<AddressFamily::Unix>* as_unix() const noexcept {
 			return (SocketAddress<AddressFamily::Unix>*)this;
 		}
 	};
