@@ -89,6 +89,13 @@ int main() {
 
 	// socketpair
 	auto sp = socket_pair<SocketType::Datagram>();
+
+	auto &so0 = sp.first;
+	std::cout << "so0 fd: " << so0.fd() << "\n";
+	auto &so1 = sp.second;
+	std::cout << "so1 fd: " << so1.fd() << "\n";
+
+
 	sp.first.write("123", 4);
 	char buf0[4];
 	sp.second.read(buf0, 4);

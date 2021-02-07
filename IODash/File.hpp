@@ -85,7 +85,7 @@ namespace IODash {
 			return fd_;
 		}
 
-		void open(const std::string& __path, int __mode = O_RDWR) {
+		virtual void open(const std::string& __path, int __mode = O_RDWR) {
 			close();
 
 			fd_ = ::open(__path.c_str(), __mode);
@@ -96,7 +96,7 @@ namespace IODash {
 			refcounter.reset((int *)nullptr);
 		}
 
-		void close() noexcept {
+		virtual void close() noexcept {
 //			printf("close, refcount=%ld\n", refcounter.use_count());
 			if (refcounter.use_count() == 1) {
 				::close(fd_);
@@ -111,11 +111,11 @@ namespace IODash {
 				throw std::system_error(errno, std::system_category(), "failed to stat");
 		}
 
-		ssize_t write(const void *__buf, size_t __len) {
+		virtual ssize_t write(const void *__buf, size_t __len) {
 			return ::write(fd_, __buf, __len);
 		}
 
-		ssize_t read(void *__buf, size_t __len) {
+		virtual ssize_t read(void *__buf, size_t __len) {
 			return ::read(fd_, __buf, __len);
 		}
 

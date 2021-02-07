@@ -61,7 +61,7 @@ namespace IODash {
 			return ret;
 		}
 
-		void create() {
+		virtual void create() {
 			close();
 
 			fd_ = socket((int)AF, (int)ST, 0);
@@ -78,28 +78,28 @@ namespace IODash {
 				throw std::system_error(errno, std::system_category(), "failed to setsockopt");
 		}
 
-		void listen(int __backlog = 256) {
+		virtual void listen(int __backlog = 256) {
 			if (::listen(fd_, __backlog))
 				throw std::system_error(errno, std::system_category(), "failed to listen on socket");
 		}
 
-		void bind(const SocketAddress<AF>& __addr) {
+		virtual void bind(const SocketAddress<AF>& __addr) {
 			if (::bind(fd_, __addr.raw(), __addr.size()))
 				throw std::system_error(errno, std::system_category(), "failed to bind socket");
 		}
 
-		bool connect(const SocketAddress<AF>& __addr) {
+		virtual bool connect(const SocketAddress<AF>& __addr) {
 			bool rc = ::connect(fd_, __addr.raw(), __addr.size()) == 0;
 
 			return rc;
 		}
 
-		void shutdown(int __how = SHUT_RDWR) {
+		virtual void shutdown(int __how = SHUT_RDWR) {
 			if (::shutdown(fd_, __how))
 				throw std::system_error(errno, std::system_category(), "failed to shutdown socket");
 		}
 
-		std::optional<Socket<AF, ST>> accept() {
+		virtual std::optional<Socket<AF, ST>> accept() {
 			int newfd = ::accept(fd_, nullptr, nullptr);
 
 			if (newfd > 0) {
@@ -113,28 +113,28 @@ namespace IODash {
 			}
 		}
 
-		int setsockopt(int __level, int __optname, const void *__optval, socklen_t __optlen) {
+		virtual int setsockopt(int __level, int __optname, const void *__optval, socklen_t __optlen) {
 			return ::setsockopt(fd_, __level, __optname, __optval, __optlen);
 		}
 
-		int getsockopt(int __level, int __optname, void *__optval, socklen_t *__optlen) {
+		virtual int getsockopt(int __level, int __optname, void *__optval, socklen_t *__optlen) {
 			return ::getsockopt(fd_, __level, __optname, __optval, __optlen);
 		}
 
-		ssize_t send(const void *__buf, size_t __len, int __flags = 0) {
+		virtual ssize_t send(const void *__buf, size_t __len, int __flags = 0) {
 			return ::send(fd_, __buf, __len, __flags);
 		}
 
-		ssize_t sendto(const SocketAddress<AF>& __addr, const void *__buf, size_t __len, int __flags = 0) {
+		virtual ssize_t sendto(const SocketAddress<AF>& __addr, const void *__buf, size_t __len, int __flags = 0) {
 			return ::sendto(fd_, __buf, __len, __flags, __addr.raw(), __addr.size());
 		}
 
-		ssize_t recv(void *__buf, size_t __len, int __flags = 0) {
+		virtual ssize_t recv(void *__buf, size_t __len, int __flags = 0) {
 			return ::recv(fd_, __buf, __len, __flags);
 		}
 
-		ssize_t recvfrom(SocketAddress<AF>& __addr, void *__buf, size_t __len, int __flags = 0) {
-			size_t sz = __addr.size();
+		virtual ssize_t recvfrom(SocketAddress<AF>& __addr, void *__buf, size_t __len, int __flags = 0) {
+			socklen_t sz = __addr.size();
 			return ::recvfrom(fd_, __buf, __len, __flags, __addr.raw(), &sz);
 		}
 	};
@@ -154,8 +154,16 @@ namespace IODash {
 		if (socketpair(AF_UNIX, (int)T, 0, fd))
 			throw std::system_error(errno, std::system_category(), "socketpair");
 
-		std::pair<Socket<AddressFamily::Unix, T>, Socket<AddressFamily::Unix, T>> ret(fd[0], fd[1]);
-		return ret;
+		return {fd[0], fd[1]};
+	}
+
+	inline std::pair<File, File> pipe_pair() {
+		int fd[2];
+
+		if (::pipe(fd))
+			throw std::system_error(errno, std::system_category(), "socketpair");
+
+		return {fd[0], fd[1]};
 	}
 }
 
