@@ -173,11 +173,11 @@ namespace IODash {
 				sockaddr_in *p;
 
 				operator uint16_t() {
-					return be16toh(p->sin_port);
+					return ntohs(p->sin_port);
 				}
 
 				uint16_t operator=(uint16_t s) {
-					p->sin_port = htobe16(s);
+					p->sin_port = htons(s);
 					return s;
 				}
 			} ret{reinterpret_cast<sockaddr_in *>(&sa)};
@@ -263,11 +263,11 @@ namespace IODash {
 				sockaddr_in6 *p;
 
 				operator uint16_t() {
-					return be16toh(p->sin6_port);
+					return ntohs(p->sin6_port);
 				}
 
 				uint16_t operator=(uint16_t s) {
-					p->sin6_port = htobe16(s);
+					p->sin6_port = htons(s);
 					return s;
 				}
 			} ret{reinterpret_cast<sockaddr_in6 *>(&sa)};
