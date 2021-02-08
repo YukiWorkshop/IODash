@@ -186,7 +186,7 @@ namespace IODash {
 		}
 
 		uint16_t port() const noexcept {
-			return be16toh(sa.in.sin_port);
+			return ntohs(sa.in.sin_port);
 		}
 
 		std::string to_string(bool __with_port = true) const {
@@ -276,7 +276,7 @@ namespace IODash {
 		}
 
 		uint16_t port() const noexcept {
-			return be16toh(sa.in6.sin6_port);
+			return ntohs(sa.in6.sin6_port);
 		}
 
 		std::string to_string(bool __with_port = true) const {
