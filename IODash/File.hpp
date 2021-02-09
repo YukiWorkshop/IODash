@@ -99,8 +99,10 @@ namespace IODash {
 		virtual void close() noexcept {
 //			printf("close, refcount=%ld\n", refcounter.use_count());
 			if (refcounter.use_count() == 1) {
-				::close(fd_);
-				fd_ = -1;
+				if (fd_ != -1) {
+					::close(fd_);
+					fd_ = -1;
+				}
 			}
 		}
 
@@ -109,6 +111,8 @@ namespace IODash {
 			int rc = ::fstat(fd_, &stbuf);
 			if (rc < 0)
 				throw std::system_error(errno, std::system_category(), "failed to stat");
+
+			return stbuf;
 		}
 
 		virtual ssize_t write(const void *__buf, size_t __len) {
