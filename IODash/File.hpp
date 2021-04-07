@@ -85,10 +85,13 @@ namespace IODash {
 			return fd_;
 		}
 
-		virtual void open(const std::string& __path, int __mode = O_RDWR) {
+		virtual void open(const std::string& __path, int __mode = O_RDWR, int __perm = -1) {
 			close();
 
-			fd_ = ::open(__path.c_str(), __mode);
+			if (__perm > -1)
+				fd_ = ::open(__path.c_str(), __mode, __perm);
+			else
+				fd_ = ::open(__path.c_str(), __mode);
 
 			if (fd_ < 0)
 				throw std::system_error(errno, std::system_category(), "failed to open");
