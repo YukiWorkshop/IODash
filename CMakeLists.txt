@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD 17)
 add_library(IODash INTERFACE)
 target_include_directories(IODash INTERFACE .)
 
+include(GNUInstallDirs)
+
 add_executable(IODash_Test test.cpp)
 target_link_libraries(IODash_Test IODash)
 
@@ -20,3 +22,11 @@ if (DEFINED BUILD_BENCHMARKS AND (${BUILD_BENCHMARKS}))
     target_link_libraries(boost_Benchmark_HTTP boost_system pthread)
 endif()
 
+install(TARGETS IODash
+        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR})
+install(FILES IODash.hpp
+        DESTINATION include/)
+
+install(FILES
+        IODash/Buffer.hpp IODash/SocketAddress.hpp IODash/File.hpp IODash/Socket.hpp IODash/EventLoop.hpp IODash/Serial.hpp IODash/Timer.hpp
+        DESTINATION include/IODash)
