@@ -16,6 +16,7 @@
 #include <system_error>
 #include <unordered_map>
 
+#include <asm/ioctls.h>
 #include <sys/ioctl.h>
 
 #ifdef __linux__
